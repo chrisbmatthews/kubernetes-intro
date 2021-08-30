@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t echo-service .
+docker build -t nexus.cbmatthews.com:8082/echo-service:latest .
