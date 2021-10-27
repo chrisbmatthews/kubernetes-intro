@@ -19,6 +19,13 @@ spec:
         image: nexus.cbmatthews.com:8082/echo-service:latest
         ports:
         - containerPort: 8080
+        volumeMounts:
+        - name: config-volume
+          mountPath: /run/config/
+      volumes:
+      - name: config-volume
+        configMap:
+          name: service-config
 ---
 apiVersion: v1
 kind: Service
@@ -34,3 +41,13 @@ spec:
       # Optional field
       # By default and for convenience, the Kubernetes control plane will allocate a port from a range (default: 30000-32767)
       nodePort: 30080
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-config
+data:
+  env.properties: |
+    MY_MESSAGE="hello from my ConfigMap!"
+  another.properties: |
+    ANOTHER_MESSAGE="more stuff if you need it"
