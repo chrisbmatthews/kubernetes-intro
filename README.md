@@ -61,6 +61,13 @@ npm start
 
 This will start the service on port 8080.
 
+To call the service:
+
+```
+curl -v localhost:8080/echo/abc
+```
+
+
 ### Docker image creation
 You can also package the `echo-service` as a docker image (you'll need to do this if you want to deploy it to k8s):
 
@@ -72,6 +79,12 @@ You can also package the `echo-service` as a docker image (you'll need to do thi
 
 ```
 ./docker.run.sh
+```
+
+To call the service:
+
+```
+curl -v localhost:8080/echo/abc
 ```
 
 But we are mainly interested in deploying it to k8s :)
@@ -110,6 +123,12 @@ You can also undeploy by running:
 ./undeploy-k8s.sh
 ```
 
+To call the service:
+
+```
+curl -v localhost:30080/echo/abc
+```
+
 ### Some handy kubectl commands
 Here are some of the commands I use most often:
 
@@ -130,6 +149,7 @@ The simplest deployment unit on k8s is the Pod.  You can think of a Pod as being
 
 I rarely deploy Pods directly.  I typically deploy them via a higher-level wrapper called the `Deployment`.
 
+### Deployment
 You can see a sample `Deployment` in the `k8s/echo-service.yaml` file:
 
 ```
@@ -151,7 +171,45 @@ spec:
     spec:
       containers:
       - name: echo-service
-        image: echo-service:latest
+        image: echo-service:LATEST
         ports:
         - containerPort: 8080
 ```
+
+Items of note:
+
+`spec.replicas`: The number of Pod replicas to deploy
+
+`spec.selector.matchLabels` and `spec.template.metadata.labels`: These two sections need to match.  These labels can be used to locate the Pod with a Selector (usually via a `Service`, as described below)
+
+`spec.template.spec.containers.image`: The docker image we'll be deploying
+
+Pretty verbose - don't you just love yaml :)
+
+### Service
+We can't route to the Pod from outside the cluster by default.  A `Service` allows us to route in from outside, especially if we use a `NodePort` service (which opens up a port on the host).
+
+Here is an example of a `Service`:
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo-service
+spec:
+  type: NodePort
+  selector:
+    app: echo-service
+  ports:
+    - port: 8080
+      targetPort: 8080
+      # Optional field
+      # By default and for convenience, the Kubernetes control plane will allocate a port from a range (default: 30000-32767)
+      nodePort: 30080
+```
+
+Notice `spec.selector`.  This is used to find the correct `Pod` to route to.  Also the example `Deployment`'s section: ``spec.selector.matchLabels``
+
+The Service will go and find all Pods that match the `selector` criteria.  It'll then route the traffic to one of the Pods it found.
+
+You can think of this as a rudimentary load balancer, since the Service *will* route to different Pods on subsequent calls.
