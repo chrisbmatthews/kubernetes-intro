@@ -45,6 +45,7 @@ metadata:
   name: echo-service
 spec:
   type: NodePort
+
   #This is used to find the Pod to route to.  Each label is an AND condition (see the Deployment's selector.matchLabels)
   selector:
     app: echo-service
