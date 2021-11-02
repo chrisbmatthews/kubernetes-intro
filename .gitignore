@@ -82,6 +82,9 @@ web_modules/
 .next
 out
 
+# tar archives
+*.tar
+
 # Nuxt.js build / generate output
 .nuxt
 dist

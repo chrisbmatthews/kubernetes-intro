@@ -19,11 +19,12 @@ If you are runing Docker Desktop on Windows or macOS:
 You have several options.  An easy one is to install microk8s.  I tested this on Ubuntu 20.04:
 
 ```
-sudo snap install kubectl
 sudo snap install microk8s --classic --channel=1.21
+sudo usermod -a -G microk8s <yourusername>
+sudo chown -f -R <yourusername> ~/.kube
+newgrp microk8s
+alias kubectl="microk8s kubectl"
 microk8s start
-mkdir ~/.kube
-microk8s config > ~/.kube/config
 ```
 
 Don't forget - to stop microk8s, you can run
