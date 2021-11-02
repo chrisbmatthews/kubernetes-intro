@@ -47,7 +47,7 @@ It'll return a response like this:
   "echo": {
     "0": "something"
   },
-  "hostname": "0e1f88a1f6ac"
+  "hostname": "your-hostname"
 }
 ```
 
@@ -75,6 +75,18 @@ You can also package the `echo-service` as a docker image (you'll need to do thi
 ```
 
 But we are mainly interested in deploying it to k8s :)
+
+#### Export to microk8s
+If you are running microk8s, the docker image needs to get into microk8s's local container registry.  To do this, after building the docker image, you can export it to a tar and import it into the microk8s registry like so:
+
+```
+docker save echo-service:LATEST > echo-service.tar
+microk8s ctr image import echo-service.tar
+```
+
+You can also uncomment these lines in the image-build.sh script :)
+
+If you are running k8s thru Docker Desktop, no need to do this.
 
 ## Kubernetes deploy
 To deploy the `echo-service` to kubernetes, run:

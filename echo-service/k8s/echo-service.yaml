@@ -5,26 +5,38 @@ metadata:
   labels:
     app: echo-service
 spec:
-  replicas: 2
+  #Adjust this to scale up and down
+  replicas: 1
+
+  #This section is used by the Service to find a Pod to route to
   selector:
     matchLabels:
       app: echo-service
+
+  #This section explains how to deploy the Pod
   template:
     metadata:
+      #This section needs to match the matchLabels section above
       labels:
         app: echo-service
+
+    #The spec section explains what we want to deploy in the Pod
     spec:
-      containers:
+      containers: #This is the docker container and image we'll be deploying...
       - name: echo-service
         image: echo-service:LATEST
         ports:
         - containerPort: 8080
+
+        #I can also create a volume inside the container and it'll be at /run/config
         volumeMounts:
-        - name: config-volume
+        - name: config-volume #This is the volume we're referencing
           mountPath: /run/config/
+
+      #And here is the volume definition
       volumes:
       - name: config-volume
-        configMap:
+        configMap: #The volume references a ConfigMap to get its files
           name: service-config
 ---
 apiVersion: v1
@@ -33,6 +45,7 @@ metadata:
   name: echo-service
 spec:
   type: NodePort
+  #This is used to find the Pod to route to.  Each label is an AND condition (see the Deployment's selector.matchLabels)
   selector:
     app: echo-service
   ports:
