@@ -312,7 +312,7 @@ The `volumeMounts` section tells us we want to mount something at `/run/config` 
 
 We then define the `config-volume` in the `volumes` section.  In this case, it references the `configMap` named `service-config`.
 
-When this is applied, you will find these fkiles inside the Pod:
+When this is applied, you will find these files inside the Pod:
 
 ```
 /run/config/env.properties
