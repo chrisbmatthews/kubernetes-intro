@@ -142,6 +142,8 @@ kubectl logs -f pod/podname     Follow the logs for a specific pod
 kubectl apply -f some.yaml      Deploys the contents of a yaml file idempotently
 
 kubectl delete -f some.yaml     Undeploys the contents of a yaml file
+
+kubectl exec --stdin --tty pod/podname -- sh    Get into a running container
 ```
 
 ## Understanding k8s concepts
@@ -213,3 +215,19 @@ Notice `spec.selector`.  This is used to find the correct `Pod` to route to.  Al
 The Service will go and find all Pods that match the `selector` criteria.  It'll then route the traffic to one of the Pods it found.
 
 You can think of this as a rudimentary load balancer, since the Service *will* route to different Pods on subsequent calls.
+
+#### Ports and Routing
+This Service runs inside the cluster as `echo-service:8080` (defined by its `port`).  
+
+It routes to a Pod that matches the `selector`.  
+
+In our case, it finds a Pod called `echo-service` and routes to that Pod at `8080` as well (the `targetPort`).
+
+And finally, we open this Service up to the outside world on port `30080`.
+
+You can think of the routing this way:
+
+```
+client -> k8scluster:30080 -> Service echo-service:8080 -> Pod echo-service:8080
+```
+
