@@ -35,6 +35,40 @@ microk8s stop
 For more info see:
 https://microk8s.io/docs
 
+#### Adding microk8s to your standard kubectl
+If you want to use your locally installed version of `kubectl` (rather than aliasing kubectl to `microk8s kubectl` as shown above), you will need to add the microk8s configuration to your `~/.kube/config` file.
+
+If you don't already have a `~/.kube/config` file, all you need to do is:
+
+```
+mkdir ~/.kube
+microk8s config > ~/.kube/config
+```
+
+However, if you already have a config file and want to merge in the new microk8s config, you can do this to create a combined config file:
+
+```
+microk8s config > ~/.kube/config-microk8s
+
+cp ~/.kube/config ~/.kube/config.old
+
+KUBECONFIG=~/.kube/config:~/.kube/config-microk8s kubectl config view --merge --flatten > ~/.kube/newconfig
+
+cp ~/.kube/newconfig ~/.kube/config
+```
+
+For more info see:
+https://microk8s.io/docs/working-with-kubectl
+
+## kubectx and kubens
+If you have more than one k8s config, it will be convenient if you install `kubectx` and `kubens` from here:
+
+https://github.com/ahmetb/kubectx
+
+The easiest way to install these is to clone that repo, then add the cloned directory to your `$PATH`.
+
+This works with Linux, macOS and even Windows (via WSL or if you have Git Bash installed).
+
 ## The example service
 This repo contains a sample service called `echo-service`.  This is a nodejs application that exposes a REST endpoint:
 
@@ -231,3 +265,56 @@ You can think of the routing this way:
 client -> k8scluster:30080 -> Service echo-service:8080 -> Pod echo-service:8080
 ```
 
+### ConfigMap
+You likely want to include external configuration with your deployed Pod.
+
+I most often want a `properties` file somewhere on the Pod's filesystem.
+
+A simple way to do this is with a `ConfigMap`.  Here is an example:
+
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-config
+data:
+  env.properties: |
+    MY_MESSAGE="hello from my ConfigMap!"
+  another.properties: |
+    ANOTHER_MESSAGE="more stuff if you need it"
+```
+
+In the above example, my `ConfigMap` contains 2 properties files: `env.properties` and `another.properties`.
+
+How can I mount those 2 files into my running Pod?
+
+We modify the `template.spec` section of the `Deployment` to include this:
+
+```
+spec:
+    containers:
+    - name: echo-service
+    image: echo-service:LATEST
+    ports:
+    - containerPort: 8080
+
+    volumeMounts:
+    - name: config-volume
+        mountPath: /run/config/
+
+    volumes:
+    - name: config-volume
+    configMap:
+          name: service-config
+```
+
+The `volumeMounts` section tells us we want to mount something at `/run/config` inside the Pod.
+
+We then define the `config-volume` in the `volumes` section.  In this case, it references the `configMap` named `service-config`.
+
+When this is applied, you will find these fkiles inside the Pod:
+
+```
+/run/config/env.properties
+/run/config/another.properties
+```
