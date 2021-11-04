@@ -23,7 +23,7 @@ sudo snap install microk8s --classic --channel=1.21
 sudo usermod -a -G microk8s <yourusername>
 sudo chown -f -R <yourusername> ~/.kube
 newgrp microk8s
-alias kubectl="microk8s kubectl"
+alias kubectl='microk8s kubectl'
 microk8s start
 ```
 
