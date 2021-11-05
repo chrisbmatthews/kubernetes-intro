@@ -43,7 +43,7 @@ alias kubectl='microk8s kubectl'
 ...but I would reccomend installing kubectl for real:
 
 ```
-sudo snap install kubectl
+sudo snap install kubectl --classic
 ```
 
 If you do so, you will need to configure `kubectl` to communicate with microk8s as described in the next section.
