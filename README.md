@@ -23,7 +23,6 @@ sudo snap install microk8s --classic --channel=1.21
 sudo usermod -a -G microk8s <yourusername>
 sudo chown -f -R <yourusername> ~/.kube
 newgrp microk8s
-alias kubectl='microk8s kubectl'
 microk8s start
 ```
 
@@ -34,6 +33,21 @@ microk8s stop
 
 For more info see:
 https://microk8s.io/docs
+
+microk8s has a built-in `kubectl` command which you can use with:
+
+```
+alias kubectl='microk8s kubectl'
+```
+
+...but I would reccomend installing kubectl for real:
+
+```
+sudo snap install kubectl
+```
+
+If you do so, you will need to configure `kubectl` to communicate with microk8s as described in the next section.
+
 
 #### Adding microk8s to your standard kubectl
 If you want to use your locally installed version of `kubectl` (rather than aliasing kubectl to `microk8s kubectl` as shown above), you will need to add the microk8s configuration to your `~/.kube/config` file.
