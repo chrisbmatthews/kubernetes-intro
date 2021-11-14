@@ -1,6 +1,8 @@
 # Kubernetes Tutorial
 See DevbaseMedia here: http://devbasemedia.com
 
+The Youtube video that explains this repo is here: https://www.youtube.com/watch?v=bNHhOELE_M0
+
 This tutorial assumes you know something about docker.  To get a quick intro to docker, see my video here:
 
 https://www.youtube.com/watch?v=yJjGe5om4Lo
